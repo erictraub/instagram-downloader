@@ -3,24 +3,12 @@ function runCEContentScript() {
 	console.log('Content Script Ran.');
 	var downloadCount = 0;
 
-
 	$("article").on("mouseenter", ".v1Nh3", function(event) {
 	    var elem = $(this);
 	    elem.append('<i class="download-icon fa fa-2x fa-arrow-circle-o-down dwnldCount' + downloadCount + '"></i>');
-		$('.dwnldCount' + downloadCount).click(function() {
-		  	let elem = $(this);
-		  	let aSibling = elem.siblings('a');
-			console.log('SIB', aSibling)
-		  	let img = aSibling.find('img')[0];
-		  	// let downloadSource = img.srcset.split(',')[4].slice(0, -5);
-		  	let downloadSource = img.src;
-		  	let imgAltData = img.alt;
-		  	let imgName = 'CAPTION= ' + imgAltData.replace(/[*."/\[\]:;|=,<>\n]/g, '');;
-		  	chrome.runtime.sendMessage({
-				url: downloadSource,
-				filename: "Instagram Downloads/" + imgName + '.jpg'
-		  	});
-		});
+	    var postIsVideo = checkIfVideo(elem);
+	    if (!postIsVideo) attachPhotoClickAction(downloadCount);
+	    else attachVideoClickAction(downloadCount);
 	});
 
 
@@ -34,6 +22,11 @@ function runCEContentScript() {
 
 };
 
+function checkIfVideo(elem) {
+	var videoElem = elem.find('span.coreSpriteVideoIconLarge');
+	return videoElem.length > 0;
+};
+
 function ceCheckLocation() {
 	let pageLocation = '';
 	setInterval(function() {
@@ -45,6 +38,27 @@ function ceCheckLocation() {
 		};
 	}, 1000);
 }
+
+function attachPhotoClickAction(downloadCount) {
+	$('.dwnldCount' + downloadCount).click(function() {
+	  	let elem2 = $(this);
+	  	let aSibling = elem2.siblings('a');
+	  	let img = aSibling.find('img')[0];
+	  	let downloadSource = img.src;
+	  	let imgAltData = img.alt;
+	  	let imgName = 'CAPTION ' + imgAltData.replace(/[*."/\[\]:;|=,<>\n]/g, '');
+	  	chrome.runtime.sendMessage({
+			url: downloadSource,
+			filename: "Instagram Downloads/" + imgName + '.jpg'
+	  	});
+	});
+};
+
+function attachVideoClickAction(downloadCount) {
+	$('.dwnldCount' + downloadCount).click(function() {
+	  	alert('This is a video. Upgrade to PRO to download videos!');
+	});
+};
 
 
 runCEContentScript();
