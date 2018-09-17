@@ -1,0 +1,42 @@
+i.download-icon {
+	color: white;
+	position: absolute;
+	top: 15px;
+	left: 15px;
+	/*z-index: 1000;*/
+	background: #3dd83d;
+	padding: 3px 15px;
+    border-radius: 3px;
+    transition: 0.3s;
+}
+
+i.download-icon:hover {
+	cursor: pointer;
+	-webkit-box-shadow: 5px 5px 21px 2px rgba(0,0,0,1);
+	-moz-box-shadow: 5px 5px 21px 2px rgba(0,0,0,1);
+	box-shadow: 5px 5px 21px 2px rgba(0,0,0,1);
+}
+
+div.download-container {
+	position: absolute;
+	top: 15px;
+	width: 100%;
+	/*z-index: 1000;*/
+	text-align: center;
+	padding: 0px 17px;
+}
+
+div.download-bar {
+	background: #3dd83d;
+	border-radius: 2px;
+    padding: 3px 0px;
+}
+
+div.download-bar:hover {
+	/*background: #58DE58;*/
+	cursor: pointer;
+}
+
+img.download-img {
+	
+}
