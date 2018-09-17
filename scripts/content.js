@@ -56,9 +56,27 @@ function attachPhotoClickAction(downloadCount) {
 
 function attachVideoClickAction(downloadCount) {
 	$('.dwnldCount' + downloadCount).click(function() {
-	  	alert('This is a video. Upgrade to PRO to download videos!');
+	  	attachUpgradePopup();
 	});
 };
+
+function attachUpgradePopup() {
+	$(".upgrade-popup-container").remove();
+	$("body").append(`
+		<div class="upgrade-popup-container">
+			<div class="upgrade-popup">
+				<img class="popup-img" src="https://i.imgur.com/6sOdwYs.png">
+				<p class="upgrade-popup-text">This post is a video.</p><br>
+				<p class="upgrade-popup-text">To download videos upgrade to</p>
+				<p class="upgrade-popup-text">the PRO version!</p>
+				<span class="popup-close">X</span>
+			</div>
+		</div>
+	`);
+	$(".popup-close").click(function() {
+	  	$(".upgrade-popup-container").remove();
+	});
+}
 
 
 runCEContentScript();
