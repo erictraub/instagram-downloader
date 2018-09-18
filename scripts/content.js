@@ -3,6 +3,7 @@ function runCEContentScript() {
 	console.log('Content Script Ran.');
 	var downloadCount = 0;
 
+	// for profile page add download btn when hover on each post
 	$("article").on("mouseenter", ".v1Nh3", function(event) {
 	    var elem = $(this);
 	    elem.append('<i class="download-icon fa fa-2x fa-arrow-circle-o-down dwnldCount' + downloadCount + '"></i>');
@@ -11,11 +12,24 @@ function runCEContentScript() {
 	    else attachVideoClickAction(downloadCount);
 	});
 
-
+	// for profile page remove download btn when hover on each post
 	$("article").on("mouseleave", ".v1Nh3", function(event) {
-	    var elem = $(this);
 	    $('.download-icon').remove();
 	    downloadCount++;
+	});
+
+	// for single post page add download btn on post
+	$("body").on("mouseenter", "._97aPb", function(event) {
+		var elem = $(this);
+		var postType = singlePostGetPostType(elem);
+		var proUser = clientIsProUser();
+		$('.download-icon').remove();
+		elem.append('<i class="download-icon fa fa-2x fa-arrow-circle-o-down"></i>');
+		handleSinglePostDownloadClick(postType, proUser);
+	});
+
+	$("body").on("mouseleave", "._97aPb", function(event) {
+		$('.download-icon').remove();
 	});
 
 	// $(".v1Nh3").append('<i class="download-icon fa fa-2x fa-arrow-circle-o-down dwnldCount' + downloadCount + '"></i>');
@@ -39,6 +53,10 @@ function ceCheckLocation() {
 	}, 1000);
 }
 
+function clientIsProUser() {
+	return false;
+};
+
 function attachPhotoClickAction(downloadCount) {
 	$('.dwnldCount' + downloadCount).click(function() {
 	  	let elem2 = $(this);
@@ -56,17 +74,17 @@ function attachPhotoClickAction(downloadCount) {
 
 function attachVideoClickAction(downloadCount) {
 	$('.dwnldCount' + downloadCount).click(function() {
-	  	attachUpgradePopup();
+	  	attachUpgradePopup('a video');
 	});
 };
 
-function attachUpgradePopup() {
+function attachUpgradePopup(str) {
 	$(".upgrade-popup-container").remove();
 	$("body").append(`
 		<div class="upgrade-popup-container">
 			<div class="upgrade-popup">
 				<img class="popup-img" src="https://i.imgur.com/6sOdwYs.png">
-				<p class="upgrade-popup-text">This post is a video.</p><br>
+				<p class="upgrade-popup-text">This post is ${str}.</p><br>
 				<p class="upgrade-popup-text">To download videos upgrade to</p>
 				<p class="upgrade-popup-text">the PRO version!</p>
 				<span class="popup-close">X</span>
@@ -74,9 +92,47 @@ function attachUpgradePopup() {
 		</div>
 	`);
 	$(".popup-close").click(function() {
+		console.log('closing')
 	  	$(".upgrade-popup-container").remove();
 	});
 }
+
+
+function handleSinglePostDownloadClick(postType, proUser) {
+	if (postType === 'photo') {
+		$('.download-icon').click(function() {
+			let elem = $(this);
+		  	let img = elem.parent().find('img')[0];
+		  	let imgAltData = img.alt;
+		  	let downloadSource = img.src;
+		  	let imgName = 'CAPTION ' + imgAltData.replace(/[*."/\[\]:;|=,<>\n]/g, '');
+		  	chrome.runtime.sendMessage({
+				url: downloadSource,
+				filename: "Instagram Downloads/" + imgName + '.jpg'
+		  	});
+		});
+	}
+	if (!proUser) {
+		console.log('User not pro');
+		console.log('Post type: ', postType);
+		if (postType === 'video') $('.download-icon').click(function() { attachUpgradePopup('a video'); });
+		if (postType === 'album') $('.download-icon').click(function() { attachUpgradePopup('an album'); });
+	}
+};
+
+function singlePostGetPostType(elem) {
+	var postType = 'photo';
+	var videoElemArray = elem.find('.videoSpritePlayButton');
+	var albumElemArray = elem.find('.coreSpriteRightChevron, .coreSpriteLeftChevron');
+	if (videoElemArray.length) postType = 'video';
+	if (albumElemArray.length) postType = 'album';
+	return postType;
+};
+
+$('body').on('click', '.popup-close', function () {
+    console.log('Click detected; modal will be displayed');
+    $(".upgrade-popup-container").remove();
+});
 
 
 runCEContentScript();
