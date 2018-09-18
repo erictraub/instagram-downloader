@@ -7,9 +7,10 @@ function runCEContentScript() {
 	$("article").on("mouseenter", ".v1Nh3", function(event) {
 	    var elem = $(this);
 	    elem.append('<i class="download-icon fa fa-2x fa-arrow-circle-o-down dwnldCount' + downloadCount + '"></i>');
-	    var postIsVideo = checkIfVideo(elem);
-	    if (!postIsVideo) attachPhotoClickAction(downloadCount);
-	    else attachVideoClickAction(downloadCount);
+	    var postType = profilePageGetPostType(elem);
+	    var proUser = clientIsProUser();
+	    // proUser = true;
+	    handleProfilePagePostDownloadClick(postType, proUser);
 	});
 
 	// for profile page remove download btn when hover on each post
@@ -57,8 +58,8 @@ function clientIsProUser() {
 	return false;
 };
 
-function attachPhotoClickAction(downloadCount) {
-	$('.dwnldCount' + downloadCount).click(function() {
+function attachPhotoClickAction() {
+	$('.download-icon').click(function() {
 	  	let elem2 = $(this);
 	  	let aSibling = elem2.siblings('a');
 	  	let img = aSibling.find('img')[0];
@@ -120,12 +121,45 @@ function handleSinglePostDownloadClick(postType, proUser) {
 	}
 };
 
+function handleProfilePagePostDownloadClick(postType, proUser) {
+	if (postType === 'photo') attachPhotoClickAction();
+	else { // if video or album
+		if (!proUser) {
+			console.log('User not pro');
+			console.log('Post type: ', postType);
+			if (postType === 'video') $('.download-icon').click(function() { attachUpgradePopup('a video', 'body'); });
+			if (postType === 'album') $('.download-icon').click(function() { attachUpgradePopup('an album', 'body'); });
+		}
+		else { // type (video or album) && is pro user
+			attachClickForProVidAllbumProfilePage();
+		}
+	}
+};
+
+function attachClickForProVidAllbumProfilePage() {
+	$('.download-icon').click(function() {
+		var elem = $(this);
+		var aElem = elem.parent().find('a[href$="?taken-by=earthpix"]')[0];
+		aElem.click();
+	});
+}
+
 function singlePostGetPostType(elem) {
 	var postType = 'photo';
 	var videoElemArray = elem.find('.videoSpritePlayButton');
 	var albumElemArray = elem.find('.coreSpriteRightChevron, .coreSpriteLeftChevron');
 	if (videoElemArray.length) postType = 'video';
 	if (albumElemArray.length) postType = 'album';
+	return postType;
+};
+
+function profilePageGetPostType(elem) {
+	var postType = 'photo';
+	var videoElemArray = elem.find('span.coreSpriteVideoIconLarge');
+	var albumElemArray = elem.find('.coreSpriteSidecarIconLarge');
+	if (videoElemArray.length) postType = 'video';
+	if (albumElemArray.length) postType = 'album';
+	console.log("POST TYPE: ", postType);
 	return postType;
 };
 
