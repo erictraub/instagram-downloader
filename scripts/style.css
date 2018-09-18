@@ -90,6 +90,16 @@ span.popup-close:hover {
 	cursor: pointer;
 }
 
+span.popup-close:active {
+	color: red;
+	cursor: pointer;
+}
+
+span.popup-close:focus {
+	color: blue;
+	cursor: pointer;
+}
+
 
 
 

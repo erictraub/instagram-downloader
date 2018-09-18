@@ -74,19 +74,19 @@ function attachPhotoClickAction(downloadCount) {
 
 function attachVideoClickAction(downloadCount) {
 	$('.dwnldCount' + downloadCount).click(function() {
-	  	attachUpgradePopup('a video');
+	  	attachUpgradePopup('a video', 'body');
 	});
 };
 
-function attachUpgradePopup(str) {
+function attachUpgradePopup(str, bindTo) {
 	$(".upgrade-popup-container").remove();
-	$("body").append(`
+	$(bindTo).append(`
 		<div class="upgrade-popup-container">
 			<div class="upgrade-popup">
 				<img class="popup-img" src="https://i.imgur.com/6sOdwYs.png">
 				<p class="upgrade-popup-text">This post is ${str}.</p><br>
-				<p class="upgrade-popup-text">To download videos upgrade to</p>
-				<p class="upgrade-popup-text">the PRO version!</p>
+				<p class="upgrade-popup-text">To download videos or albums</p>
+				<p class="upgrade-popup-text">upgrade to the PRO version!</p>
 				<span class="popup-close">X</span>
 			</div>
 		</div>
@@ -115,8 +115,8 @@ function handleSinglePostDownloadClick(postType, proUser) {
 	if (!proUser) {
 		console.log('User not pro');
 		console.log('Post type: ', postType);
-		if (postType === 'video') $('.download-icon').click(function() { attachUpgradePopup('a video'); });
-		if (postType === 'album') $('.download-icon').click(function() { attachUpgradePopup('an album'); });
+		if (postType === 'video') $('.download-icon').click(function() { attachUpgradePopup('a video', '._2dDPU'); });
+		if (postType === 'album') $('.download-icon').click(function() { attachUpgradePopup('an album', '._2dDPU'); });
 	}
 };
 
