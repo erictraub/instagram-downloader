@@ -9,6 +9,7 @@ function runCEContentScript() {
 	    elem.append('<i class="download-icon fa fa-2x fa-arrow-circle-o-down dwnldCount' + downloadCount + '"></i>');
 	    var postType = profilePageGetPostType(elem);
 	    var proUser = clientIsProUser();
+	    proUser = true; // pro user for testing
 	    handleProfilePagePostDownloadClick(postType, proUser);
 	});
 
@@ -23,7 +24,7 @@ function runCEContentScript() {
 		var elem = $(this);
 		var postType = singlePostGetPostType(elem);
 		var proUser = clientIsProUser();
-		proUser = true;
+		proUser = true;  // pro user for testing
 		$('.download-icon').remove();
 		elem.append('<i class="download-icon fa fa-2x fa-arrow-circle-o-down"></i>');
 		handleSinglePostDownloadClick(postType, proUser);
@@ -122,6 +123,7 @@ function handleSinglePostDownloadClick(postType, proUser) {
 		} else {  // is pro user
 			console.log('Is pro user.');
 			if (postType === 'video') $('.download-icon').click(function() { downloadVideo($(this)); });
+			else if (postType === 'album') $('.download-icon').click(function() { downloadAlbum($(this)); });
 		}
 	}
 };
@@ -151,6 +153,28 @@ function downloadVideo(downloadBtnElem) {
 		url: videoSource,
 		filename: "Instagram Downloads/" + videoName + '.mp4'
   	});
+};
+
+function downloadAlbum(downloadBtnElem) {
+	var photosArray = downloadBtnElem.parent().find('img.FFVAD');
+	var videosArray = downloadBtnElem.parent().find('video.tWeCl');
+	console.log('PHO', photosArray)  // have to change the above two 'finds' to 'each' to get each photo and video element
+	var mediaArray = photosArray.concat(videosArray);
+	var downloadsArray = mediaArray.map((elem, i) => {
+		return { downloadSource: elem.src, mediaName: `album_media_${i + 1}${elem.src.substr(elem.src.lastIndexOf(".")+1)}` };
+	});
+	var caption = $('._2dDPU .C4VMK span')[0] ? $('._2dDPU .C4VMK span')[0].textContent : '(no caption)';
+	var location = $('._2dDPU .O4GlU')[0] ? $('._2dDPU .O4GlU')[0].textContent : '(no location)';
+	var folderName = `CAPTION ${caption} LOCATION ${location}`.replace(/[*."/\[\]:;|=,<>\n]/g, '');
+	downloadsArray.forEach((elem, i) => {
+	  setTimeout(function() {
+		  	chrome.runtime.sendMessage({
+				url: elem.downloadSource,
+				filename: `Instagram Downloads/${folderName}/${elem.mediaName}`
+		  	});
+	  }, (i + 1) * 1000)
+	});
+	
 };
 
 function attachClickForProVidAllbumProfilePage() {
