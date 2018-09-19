@@ -9,7 +9,6 @@ function runCEContentScript() {
 	    elem.append('<i class="download-icon fa fa-2x fa-arrow-circle-o-down dwnldCount' + downloadCount + '"></i>');
 	    var postType = profilePageGetPostType(elem);
 	    var proUser = clientIsProUser();
-	    // proUser = true;
 	    handleProfilePagePostDownloadClick(postType, proUser);
 	});
 
@@ -24,6 +23,7 @@ function runCEContentScript() {
 		var elem = $(this);
 		var postType = singlePostGetPostType(elem);
 		var proUser = clientIsProUser();
+		proUser = true;
 		$('.download-icon').remove();
 		elem.append('<i class="download-icon fa fa-2x fa-arrow-circle-o-down"></i>');
 		handleSinglePostDownloadClick(postType, proUser);
@@ -113,11 +113,16 @@ function handleSinglePostDownloadClick(postType, proUser) {
 		  	});
 		});
 	}
-	if (!proUser) {
-		console.log('User not pro');
-		console.log('Post type: ', postType);
-		if (postType === 'video') $('.download-icon').click(function() { attachUpgradePopup('a video', '._2dDPU'); });
-		if (postType === 'album') $('.download-icon').click(function() { attachUpgradePopup('an album', '._2dDPU'); });
+	else {  // if video or album
+		if (!proUser) {  // not pro user
+			console.log('Not pro user.');
+			console.log('Post type: ', postType);
+			if (postType === 'video') $('.download-icon').click(function() { attachUpgradePopup('a video', '._2dDPU'); });
+			if (postType === 'album') $('.download-icon').click(function() { attachUpgradePopup('an album', '._2dDPU'); });
+		} else {  // is pro user
+			console.log('Is pro user.');
+			if (postType === 'video') $('.download-icon').click(function() { downloadVideo($(this)); });
+		}
 	}
 };
 
@@ -134,6 +139,18 @@ function handleProfilePagePostDownloadClick(postType, proUser) {
 			attachClickForProVidAllbumProfilePage();
 		}
 	}
+};
+
+function downloadVideo(downloadBtnElem) {
+	var video = downloadBtnElem.parent().find('video')[0];
+	var videoSource = video.src;
+	var caption = $('._2dDPU .C4VMK span')[0] ? $('._2dDPU .C4VMK span')[0].textContent : '(no caption)';
+	var location = $('._2dDPU .O4GlU')[0] ? $('._2dDPU .O4GlU')[0].textContent : '(no location)';
+	var videoName = `CAPTION ${caption} LOCATION ${location}`.replace(/[*."/\[\]:;|=,<>\n]/g, '');
+  	chrome.runtime.sendMessage({
+		url: videoSource,
+		filename: "Instagram Downloads/" + videoName + '.mp4'
+  	});
 };
 
 function attachClickForProVidAllbumProfilePage() {
