@@ -156,31 +156,38 @@ function downloadVideo(downloadBtnElem) {
 };
 
 function downloadAlbum(downloadBtnElem) {
-	var photosArray = downloadBtnElem.parent().find('img.FFVAD');
-	var videosArray = downloadBtnElem.parent().find('video.tWeCl');
-	console.log('PHO', photosArray)  // have to change the above two 'finds' to 'each' to get each photo and video element
-	var mediaArray = photosArray.concat(videosArray);
-	var downloadsArray = mediaArray.map((elem, i) => {
-		return { downloadSource: elem.src, mediaName: `album_media_${i + 1}${elem.src.substr(elem.src.lastIndexOf(".")+1)}` };
-	});
 	var caption = $('._2dDPU .C4VMK span')[0] ? $('._2dDPU .C4VMK span')[0].textContent : '(no caption)';
 	var location = $('._2dDPU .O4GlU')[0] ? $('._2dDPU .O4GlU')[0].textContent : '(no location)';
 	var folderName = `CAPTION ${caption} LOCATION ${location}`.replace(/[*."/\[\]:;|=,<>\n]/g, '');
-	downloadsArray.forEach((elem, i) => {
-	  setTimeout(function() {
-		  	chrome.runtime.sendMessage({
-				url: elem.downloadSource,
-				filename: `Instagram Downloads/${folderName}/${elem.mediaName}`
-		  	});
-	  }, (i + 1) * 1000)
-	});
+	// MAKE IT SO IMG/VIDEO SHOWING IS THE ONLY ONE DOWNLOADED
+
+	// var mediaArray = photosArray.concat(videosArray);
+	// console.log('MED', mediaArray);
+	// var downloadsArray = mediaArray.map((elem, i) => {
+	// 	return { downloadSource: elem.downloadSource, mediaName: `album_media_${i + 1}${elem.mediaType}` };
+	// });
+	// var caption = $('._2dDPU .C4VMK span')[0] ? $('._2dDPU .C4VMK span')[0].textContent : '(no caption)';
+	// var location = $('._2dDPU .O4GlU')[0] ? $('._2dDPU .O4GlU')[0].textContent : '(no location)';
+	// var folderName = `CAPTION ${caption} LOCATION ${location}`.replace(/[*."/\[\]:;|=,<>\n]/g, '');
+	// downloadsArray.forEach((elem, i) => {
+	// 	setTimeout(function() {
+	// 	  	chrome.runtime.sendMessage({
+	// 			url: elem.downloadSource,
+	// 			filename: `Instagram Downloads/${folderName}/${elem.mediaName}`
+	// 	  	});
+	// 	}, i * 1000)
+	// });
 	
 };
+
+
+
+
 
 function attachClickForProVidAllbumProfilePage() {
 	$('.download-icon').click(function() {
 		var elem = $(this);
-		var aElem = elem.parent().find('a[href$="?taken-by=earthpix"]')[0];
+		var aElem = elem.parent().find('a[href*="?taken-by="]')[0];
 		aElem.click();
 	});
 }
